@@ -1,0 +1,93 @@
+body {
+    background-color: black;
+    color: red;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    text-align: center;
+}
+
+header {
+    margin-bottom: 50px;
+    position: relative;
+}
+
+h1 {
+    font-size: 48px;
+    margin: 0;
+    color: red;
+    transition: color 0.3s;
+}
+
+.animated {
+    animation: colorChange 2s linear infinite;
+    text-shadow: 0 0 10px red, 0 0 20px red, 0 0 30px darkred;
+}
+
+@keyframes colorChange {
+    0% { color: red; }
+    25% { color: darkred; }
+50% { color: black; }
+75% { color: darkred; }
+    100% { color: red; }
+}
+
+.settings-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: red;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.settings-menu {
+    display: none;
+    margin-top: 5px;
+    background-color: black;
+    padding: 5px;
+    border: 1px solid red;
+    border-radius: 5px;
+    text-align: left;
+    position: absolute;
+    right: 10px;
+    z-index: 100;
+}
+
+.search-container {
+    display: inline-block;
+    margin: 0 auto;
+}
+
+input[type="text"] {
+    width: 400px;
+    padding: 10px;
+    border: 2px solid red;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: black;
+    color: red;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 10px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+button:hover {
+    background-color: darkred;
+    box-shadow: 0 0 10px red;
+}
+
+footer {
+    margin-top: 50px;
+    border-top: 2px solid red;
+    padding-top: 10px;
+}

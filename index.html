@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIPEARCH</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: black;
+            color: red;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+ text-align: center;
+        }
+
+        header {
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            color: red;
+            transition: color 0.3s;
+        }
+
+        .animated {
+            animation: colorChange 2s linear infinite;
+            text-shadow: 0 0 10px red, 0 0 20px red, 0 0 30px darkred;
+        }
+
+        @keyframes colorChange {
+            0%, 100% { color: red; }
+            25%, 75% { color: darkred; }
+            50% { color: black; }
+        }
+
+        .settings-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: red;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .settings-menu {
+            display: none;
+            margin-top: 5px;
+            background-color: black;
+            padding: 5px;
+            border: 1px solid red;
+            border-radius: 5px;
+            text-align: left;
+            position: absolute;
+            right: 10px;
+            z-index: 100;
+        }
+
+        .search-container {
+            display: inline-block;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid red;
+            border-radius: 5px;
+            font-size: 16px;
+            color: black;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: black;
+            color: red;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 10px;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+
+        button:hover {
+            background-color: darkred;
+            box-shadow: 0 0 10px red;
+        }
+
+        footer {
+            margin-top: 50px;
+            border-top: 2px solid red;
+            padding-top: 10px;
+        }
+
+        .history-list {
+            display: none;
+            background-color: black;
+            color: white;
+            max-height: 150px;
+            position: absolute;
+            z-index: 1000;
+            width: 100%;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            border: 2px solid red;
+            overflow: hidden;
+            top: 100%;
+        }
+
+        .history-list li {
+            padding: 10px;
+            cursor: pointer;
+            border-top: 1px solid red;
+        }
+
+        .history-list li:first-child {
+            border-top: none;
+        }
+
+        .history-list li:hover {
+            background-color: darkred;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 id="title">RIPEARCH</h1>
+        <button class="settings-button" onclick="toggleSettings()">
+            <i class="fas fa-cog"></i>
+        </button>
+        <div id="settings-menu" class="settings-menu" style="display: none;">
+            <label>
+                Animation:
+                <input type="checkbox" id="animation-toggle" onchange="toggleAnimation()">
+            </label>
+        </div>
+    </header>
+    <main>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search..." onkeypress="checkEnter(event)" />
+            <div>
+                <button class="microphone-button" onclick="startVoiceRecognition()">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="search-button" onclick="performSearch()">Search</button>
+            </div>
+            <ul id="history" class="history-list"></ul>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2024 RIPEARCH. All rights reserved.</p>
+    </footer>
+    <script>
+        function startVoiceRecognition() {
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.lang = 'ru-RU';
+
+            recognition.onstart = function() {
+                console.log('Голосовое распознавание началось. Говорите в микрофон.');
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById('search-input').value = transcript;
+                console.log('Вы сказали: ' + transcript);
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Произошла ошибка в распознавании: ' + event.error);
+            };
+
+            recognition.onend = function() {
+                console.log('Голосовое распознавание завершено.');
+            };
+
+            recognition.start();
+        }
+
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        }
+
+        async function performSearch() {
+            const query = document.getElementById('search-input').value;
+            if (query) {
+                const searchUrl = `https://yandex.ru/search/?text=${encodeURIComponent(query)}`;
+                window.open(searchUrl, '_blank');
+            } else {
+                alert('Пожалуйста, введите поисковый запрос.');
+            }
+        }
+
+        function saveSearchQuery(query) {
+            let history = JSON.parse(localStorage.getItem('searchHistory')) || [];
+            history = history.filter(item => item !== query);
+            history.unshift(query);
+            if (history.length > 7) {
+                history.pop();
+            }
+            localStorage.setItem('searchHistory', JSON.stringify(history));
+            displaySearchHistory();
+        }
+
+        function displaySearchHistory() {
+            const historyList = document.getElementById('history');
+            historyList.innerHTML = '';
+            let history = JSON.parse(localStorage.getItem('searchHistory')) || [];
+            history.forEach(query => {
+                const li = document.createElement('li');
+                li.textContent = query;
+                li.onclick = () => {
+                    document.getElementById('search-input').value = query;
+                    performSearch();
+                };
+                historyList.appendChild(li);
+            });
+            historyList.style.display = history.length > 0 ? 'block' : 'none';
+        }
+
+        function toggleSettings() {
+            const settingsMenu = document.getElementById("settings-menu");
+            settingsMenu.style.display = settingsMenu.style.display === "block" ? "none" : "block";
+        }
+
+        function toggleAnimation() {
+            const title = document.getElementById("title");
+            const animationToggle = document.getElementById("animation-toggle");
+
+            if (animationToggle.checked) {
+                title.classList.add("animated");
+                localStorage.setItem("animationEnabled", "true");
+            } else {
+                title.classList.remove("animated");
+                title.style.animation = "none";
+                title.style.color = "red";
+                localStorage.setItem("animationEnabled", "false");
+            }
+        }
+
+        window.onload = function() {
+            const animationToggle = document.getElementById("animation-toggle");
+            const isAnimationEnabled = localStorage.getItem("animationEnabled") === "true";
+            animationToggle.checked = isAnimationEnabled;
+            if (isAnimationEnabled) {
+                toggleAnimation();
+            }
+            displaySearchHistory();
+        };
+
+        document.getElementById('search-input').addEventListener('focus', function() {
+            const historyList = document.getElementById('history');
+            historyList.style.display = 'block';
+            displaySearchHistory();
+        });
+
+        document.addEventListener('click', function(event) {
+            const historyList = document.getElementById('history');
+            const searchInput = document.getElementById('search-input');
+            if (!searchInput.contains(event.target) && !historyList.contains(event.target)) {
+                historyList.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
